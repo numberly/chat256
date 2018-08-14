@@ -1,0 +1,42 @@
+<html>
+    <head>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.8.0/sha256.min.js"/></script>
+    </head>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="emoji.css">
+<body>
+  <div class="container">
+    <i class="em em-cat"></i>
+      <label for="file_picker" class="container--label">
+        <span>Upload your file</span>
+        <input id="file_picker" class="container--input" type="file" placeholder="Put your csv here"/>
+      </label>
+      <a id="dl_link" class="container--button" download="sha256_list.txt" style="display: none"></a>
+  </div>
+</body>
+<script>
+
+  function readSingleFile(e) {
+      var dl_link = document.getElementById("dl_link");
+      var file = e.target.files[0];
+      if (!file) {
+          return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+          var contents = e.target.result.split("\n");
+          contents = contents.filter(function(e){return e});
+          for (var i=0; (i < contents.length); i++){
+            contents[i] = sha256(contents[i].replace(/\r/g, "").trim().toLowerCase());
+          }
+          var new_file = new Blob([contents.join('\n\r')], {type: "text/plain"});
+          dl_link.href = window.URL.createObjectURL(new_file);
+          dl_link.click();
+      };
+      reader.readAsText(file);
+  }
+
+  document.getElementById('file_picker').addEventListener('change', readSingleFile, false);
+
+</script>
+</html>
